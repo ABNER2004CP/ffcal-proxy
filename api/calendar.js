@@ -1,34 +1,31 @@
-import * as cheerio from "cheerio";
-
 export default async function handler(req, res) {
   try {
-    const url = "https://www.forexfactory.com/calendar?week=next";
-    const html = await fetch(url).then(r => r.text());
-    const $ = cheerio.load(html);
+    const url = "https://nfs.faireconomy.media/ff_calendar_thisweek.xml";
+    const xml = await fetch(url).then(r => r.text());
 
+    // تبدیل XML به JSON ساده
     const events = [];
+    const items = xml.split("<event>");
 
-    $("table.calendar__table tr").each((i, row) => {
-      const time = $(row).find(".calendar__time").text().trim();
-      const currency = $(row).find(".calendar__currency").text().trim();
-      const event = $(row).find(".calendar__event").text().trim();
-      const impact = $(row).find(".calendar__impact span").attr("title") || "";
-      const actual = $(row).find(".calendar__actual").text().trim();
-      const forecast = $(row).find(".calendar__forecast").text().trim();
-      const previous = $(row).find(".calendar__previous").text().trim();
+    items.forEach(block => {
+      if (!block.includes("</event>")) return;
 
-      if (!event) return;
-
-      const finalTime = time || "All Day";
+      const get = tag => {
+        const start = block.indexOf(`<${tag}>`);
+        const end = block.indexOf(`</${tag}>`);
+        if (start === -1 || end === -1) return "";
+        return block.substring(start + tag.length + 2, end).trim();
+      };
 
       events.push({
-        time: finalTime,
-        currency,
-        impact,
-        event,
-        actual,
-        forecast,
-        previous
+        date: get("date"),
+        time: get("time") || "All Day",
+        currency: get("country"),
+        impact: get("impact"),
+        title: get("title"),
+        forecast: get("forecast"),
+        previous: get("previous"),
+        actual: get("actual")
       });
     });
 

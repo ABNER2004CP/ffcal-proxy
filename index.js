@@ -1,12 +1,11 @@
 import express from "express";
+import calendarRoute from "./api/calendar.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// مسیر API
-app.use("/api", express.static("api"));
+app.use("/api/calendar", calendarRoute);
 
-// تست
 app.get("/", (req, res) => {
   res.send("FF Calendar Proxy is running");
 });

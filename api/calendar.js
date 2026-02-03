@@ -1,4 +1,9 @@
-export default async function handler(req, res) {
+import express from "express";
+import fetch from "node-fetch";
+
+const router = express.Router();
+
+router.get("/", async (req, res) => {
   try {
     const url = "https://nfs.faireconomy.media/ff_calendar_thisweek.xml";
     const xml = await fetch(url).then(r => r.text());
@@ -6,7 +11,6 @@ export default async function handler(req, res) {
     const events = [];
     const items = xml.split("<event>");
 
-    // تاریخ امروز به فرمت فارکس‌فکتوری (MM-DD-YYYY)
     const today = new Date();
     const mm = String(today.getMonth() + 1).padStart(2, "0");
     const dd = String(today.getDate()).padStart(2, "0");
@@ -27,8 +31,6 @@ export default async function handler(req, res) {
       };
 
       const date = get("date");
-
-      // فقط خبرهای امروز
       if (date !== todayStr) return;
 
       events.push({
@@ -43,8 +45,10 @@ export default async function handler(req, res) {
       });
     });
 
-    res.status(200).json(events);
+    res.json(events);
   } catch (err) {
     res.status(500).json({ error: err.toString() });
   }
-}
+});
+
+export default router;

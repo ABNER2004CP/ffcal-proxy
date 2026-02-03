@@ -1,10 +1,20 @@
 export default async function handler(req, res) {
   try {
-    const url = "https://nfs.faireconomy.media/ff_calendar_today.xml";
+    const url = "https://nfs.faireconomy.media/ff_calendar_thisweek.xml";
     const xml = await fetch(url).then(r => r.text());
 
     const events = [];
     const items = xml.split("<event>");
+
+    // تاریخ امروز به فرمت فارکس‌فکتوری (MM-DD-YYYY)
+    const today = new Date();
+    const mm = String(today.getMonth() + 1).padStart(2, "0");
+    const dd = String(today.getDate()).padStart(2, "0");
+    const yyyy = today.getFullYear();
+    const todayStr = `${mm}-${dd}-${yyyy}`;
+
+    const clean = str =>
+      str.replace("<![CDATA[", "").replace("]]>", "").trim();
 
     items.forEach(block => {
       if (!block.includes("</event>")) return;
@@ -13,11 +23,16 @@ export default async function handler(req, res) {
         const start = block.indexOf(`<${tag}>`);
         const end = block.indexOf(`</${tag}>`);
         if (start === -1 || end === -1) return "";
-        return block.substring(start + tag.length + 2, end).trim();
+        return clean(block.substring(start + tag.length + 2, end));
       };
 
+      const date = get("date");
+
+      // فقط خبرهای امروز
+      if (date !== todayStr) return;
+
       events.push({
-        date: get("date"),
+        date,
         time: get("time") || "All Day",
         currency: get("country"),
         impact: get("impact"),

@@ -8,26 +8,30 @@ export default async function handler(req, res) {
 
     const events = [];
 
-    $("tr.calendar__row, tr.calendar__row--all-day").each((i, row) => {
-      const time = $(row).find(".calendar__time").text().trim() || "All Day";
+    $("table.calendar__table tr").each((i, row) => {
+      const time = $(row).find(".calendar__time").text().trim();
       const currency = $(row).find(".calendar__currency").text().trim();
-      const impact = $(row).find(".calendar__impact span").attr("title") || "";
       const event = $(row).find(".calendar__event").text().trim();
+      const impact = $(row).find(".calendar__impact span").attr("title") || "";
       const actual = $(row).find(".calendar__actual").text().trim();
       const forecast = $(row).find(".calendar__forecast").text().trim();
       const previous = $(row).find(".calendar__previous").text().trim();
 
-      if (event) {
-        events.push({
-          time,
-          currency,
-          impact,
-          event,
-          actual,
-          forecast,
-          previous
-        });
-      }
+      // اگر هیچ رویدادی نبود، این ردیف رو نادیده می‌گیریم
+      if (!event) return;
+
+      // اگر زمان خالی بود، یعنی All Day
+      const finalTime = time || "All Day";
+
+      events.push({
+        time: finalTime,
+        currency,
+        impact,
+        event,
+        actual,
+        forecast,
+        previous
+      });
     });
 
     res.status(200).json(events);

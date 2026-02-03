@@ -1,9 +1,8 @@
 export default async function handler(req, res) {
   try {
-    const url = "https://nfs.faireconomy.media/ff_calendar_thisweek.xml";
+    const url = "https://nfs.faireconomy.media/ff_calendar_today.xml";
     const xml = await fetch(url).then(r => r.text());
 
-    // تبدیل XML به JSON ساده
     const events = [];
     const items = xml.split("<event>");
 

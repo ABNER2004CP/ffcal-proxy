@@ -2,7 +2,7 @@ import * as cheerio from "cheerio";
 
 export default async function handler(req, res) {
   try {
-    const url = "https://www.forexfactory.com/calendar";
+    const url = "https://www.forexfactory.com/calendar?week=next";
     const html = await fetch(url).then(r => r.text());
     const $ = cheerio.load(html);
 
@@ -17,10 +17,8 @@ export default async function handler(req, res) {
       const forecast = $(row).find(".calendar__forecast").text().trim();
       const previous = $(row).find(".calendar__previous").text().trim();
 
-      // اگر هیچ رویدادی نبود، این ردیف رو نادیده می‌گیریم
       if (!event) return;
 
-      // اگر زمان خالی بود، یعنی All Day
       const finalTime = time || "All Day";
 
       events.push({

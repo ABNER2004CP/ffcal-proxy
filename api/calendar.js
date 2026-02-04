@@ -10,6 +10,13 @@ router.get("/", async (req, res) => {
     const events = [];
     const items = xml.split("<event>");
 
+    // تاریخ امروز بر اساس UTC (سازگار با ForexFactory)
+    const now = new Date();
+    const utcMonth = String(now.getUTCMonth() + 1).padStart(2, "0");
+    const utcDay = String(now.getUTCDate()).padStart(2, "0");
+    const utcYear = now.getUTCFullYear();
+    const todayStr = `${utcMonth}-${utcDay}-${utcYear}`;
+
     const clean = str =>
       str.replace("<![CDATA[", "").replace("]]>", "").trim();
 
@@ -23,8 +30,13 @@ router.get("/", async (req, res) => {
         return clean(block.substring(start + tag.length + 2, end));
       };
 
+      const date = get("date");
+
+      // فقط رویدادهای امروز
+      if (date !== todayStr) return;
+
       events.push({
-        date: get("date"),
+        date,
         time: get("time") || "All Day",
         currency: get("country"),
         impact: get("impact"),

@@ -10,12 +10,15 @@ router.get("/", async (req, res) => {
     const events = [];
     const items = xml.split("<event>");
 
-    // تاریخ امروز بر اساس UTC (سازگار با ForexFactory)
+    // تبدیل تاریخ امروز به منطقه زمانی ET (Eastern Time)
     const now = new Date();
-    const utcMonth = String(now.getUTCMonth() + 1).padStart(2, "0");
-    const utcDay = String(now.getUTCDate()).padStart(2, "0");
-    const utcYear = now.getUTCFullYear();
-    const todayStr = `${utcMonth}-${utcDay}-${utcYear}`;
+    const etOffset = -5; // زمستان ET = UTC-5
+    const etDate = new Date(now.getTime() + etOffset * 60 * 60 * 1000);
+
+    const mm = String(etDate.getUTCMonth() + 1).padStart(2, "0");
+    const dd = String(etDate.getUTCDate()).padStart(2, "0");
+    const yyyy = etDate.getUTCFullYear();
+    const todayStr = `${mm}-${dd}-${yyyy}`;
 
     const clean = str =>
       str.replace("<![CDATA[", "").replace("]]>", "").trim();
@@ -32,7 +35,7 @@ router.get("/", async (req, res) => {
 
       const date = get("date");
 
-      // فقط رویدادهای امروز
+      // فقط رویدادهای امروز بر اساس ET
       if (date !== todayStr) return;
 
       events.push({

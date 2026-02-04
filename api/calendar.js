@@ -10,12 +10,6 @@ router.get("/", async (req, res) => {
     const events = [];
     const items = xml.split("<event>");
 
-    const today = new Date();
-    const mm = String(today.getMonth() + 1).padStart(2, "0");
-    const dd = String(today.getDate()).padStart(2, "0");
-    const yyyy = today.getFullYear();
-    const todayStr = `${mm}-${dd}-${yyyy}`;
-
     const clean = str =>
       str.replace("<![CDATA[", "").replace("]]>", "").trim();
 
@@ -29,11 +23,8 @@ router.get("/", async (req, res) => {
         return clean(block.substring(start + tag.length + 2, end));
       };
 
-      const date = get("date");
-      if (date !== todayStr) return;
-
       events.push({
-        date,
+        date: get("date"),
         time: get("time") || "All Day",
         currency: get("country"),
         impact: get("impact"),
